@@ -58,7 +58,7 @@
     background-color: rgb(var(--secondary-color));
     position: relative;
     overflow-y: auto;
-    padding-left: 5vw;
+    padding-left: 1em;
     width: 100%;
     word-break: break-word;
     /*overflow-x: ;*/
