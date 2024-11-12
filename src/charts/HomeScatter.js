@@ -5,15 +5,20 @@ function ScatterPlot({ data }) {
     const svgRef = useRef();
 
     useEffect(() => {
-        const width = 1200;
-        const height = 600;
+        const width = 1000;
+        const height = 400;
         const marginTop = 20;
         const marginRight = 20;
         const marginBottom = 30;
         const marginLeft = 40;
 
-        const x_min = d3.min(data, d => d.model);
-        const x_max = d3.max(data, d => d.model);
+        // const x_min = d3.min(data, d => d.model);
+        // const x_max = d3.max(data, d => d.model);
+
+        const x_min = -0.04;
+        const x_max = 0.04;
+
+
         const y_min = d3.min(data, d => d.volume);
         const y_max = d3.max(data, d => d.volume);
 
@@ -35,12 +40,15 @@ function ScatterPlot({ data }) {
         // Add the x-axis with fewer ticks
         svg.append("g")
             .attr("transform", `translate(0,${height - marginBottom})`)
-            .call(d3.axisBottom(xScale).ticks(5));
+            .call(d3.axisBottom(xScale).ticks(5))
+            .attr("stroke-opacity", 0.3);
 
         // Add the y-axis with fewer ticks
         svg.append("g")
-            .attr("transform", `translate(${marginLeft},0)`)
-            .call(d3.axisLeft(yScale).ticks(5));
+            .attr("transform", `translate(${xScale(0)},0)`)
+            .call(d3.axisLeft(yScale).ticks(0))
+            .attr("stroke-opacity", 0.3);
+
 
         // Tooltip for hover effect
         const tooltip = d3.select("body").append("div")
@@ -58,7 +66,7 @@ function ScatterPlot({ data }) {
             .append("circle")
             .attr("cx", d => xScale(d.model))
             .attr("cy", d => yScale(d.volume))
-            .attr("r", 2)
+            .attr("r", 4)
             .style("fill", "steelblue")
             .on("mouseover", (event, d) => {
                 tooltip.transition().duration(200).style("opacity", 0.9);
