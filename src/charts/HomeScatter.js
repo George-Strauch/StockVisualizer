@@ -5,17 +5,17 @@ function ScatterPlot({ data }) {
     const svgRef = useRef();
 
     useEffect(() => {
-        const width = 600;
-        const height = 400;
+        const width = 1200;
+        const height = 600;
         const marginTop = 20;
         const marginRight = 20;
         const marginBottom = 30;
         const marginLeft = 40;
 
-        const x_min = d3.min(data, d => d.x);
-        const x_max = d3.max(data, d => d.x);
-        const y_min = d3.min(data, d => d.y);
-        const y_max = d3.max(data, d => d.y);
+        const x_min = d3.min(data, d => d.model);
+        const x_max = d3.max(data, d => d.model);
+        const y_min = d3.min(data, d => d.volume);
+        const y_max = d3.max(data, d => d.volume);
 
         const svg = d3.select(svgRef.current)
             .attr("width", width)
@@ -32,25 +32,46 @@ function ScatterPlot({ data }) {
         // Clear previous elements
         svg.selectAll("*").remove();
 
-        // Add the x-axis.
+        // Add the x-axis with fewer ticks
         svg.append("g")
             .attr("transform", `translate(0,${height - marginBottom})`)
-            .call(d3.axisBottom(xScale));
+            .call(d3.axisBottom(xScale).ticks(5));
 
-        // Add the y-axis.
+        // Add the y-axis with fewer ticks
         svg.append("g")
             .attr("transform", `translate(${marginLeft},0)`)
-            .call(d3.axisLeft(yScale));
+            .call(d3.axisLeft(yScale).ticks(5));
 
-        // Plot the points
+        // Tooltip for hover effect
+        const tooltip = d3.select("body").append("div")
+            .style("position", "absolute")
+            .style("background", "lightgray")
+            .style("padding", "5px")
+            .style("border-radius", "5px")
+            .style("pointer-events", "none")
+            .style("opacity", 0);
+
+        // Plot the points with hover labels
         svg.selectAll("circle")
             .data(data)
             .enter()
             .append("circle")
-            .attr("cx", d => xScale(d.x))
-            .attr("cy", d => yScale(d.y))
+            .attr("cx", d => xScale(d.model))
+            .attr("cy", d => yScale(d.volume))
             .attr("r", 2)
-            .style("fill", "steelblue");
+            .style("fill", "steelblue")
+            .on("mouseover", (event, d) => {
+                tooltip.transition().duration(200).style("opacity", 0.9);
+                tooltip.html(`${d.ticker} <br> Model: ${d.model}<br>Volume: ${d.volume}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
+
+        // Remove tooltip when component unmounts
+        return () => tooltip.remove();
     }, [data]);
 
     return <svg ref={svgRef}></svg>;
