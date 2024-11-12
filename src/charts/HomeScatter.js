@@ -18,8 +18,7 @@ function ScatterPlot({ data }) {
         const x_min = -0.04;
         const x_max = 0.04;
 
-
-        const y_min = d3.min(data, d => d.volume);
+        const y_min = -3000000;
         const y_max = d3.max(data, d => d.volume);
 
         const svg = d3.select(svgRef.current)
@@ -41,13 +40,13 @@ function ScatterPlot({ data }) {
         svg.append("g")
             .attr("transform", `translate(0,${height - marginBottom})`)
             .call(d3.axisBottom(xScale).ticks(5))
-            .attr("stroke-opacity", 0.3);
+            .attr("stroke-opacity", 0.1);
 
         // Add the y-axis with fewer ticks
         svg.append("g")
             .attr("transform", `translate(${xScale(0)},0)`)
             .call(d3.axisLeft(yScale).ticks(0))
-            .attr("stroke-opacity", 0.3);
+            .attr("stroke-opacity", 0.1);
 
 
         // Tooltip for hover effect

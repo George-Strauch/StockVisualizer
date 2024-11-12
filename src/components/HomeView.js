@@ -40,7 +40,6 @@ function Home({isMobile}) {
 
     return (
         <div className="home-content">
-            <h2>Home Content</h2>
             <div>{getChart(data)}</div>
             <pre>{JSON.stringify(data, null, 4)}</pre>
         </div>
