@@ -136,6 +136,7 @@ function App() {
         document.documentElement.style.setProperty('--soft-border-rgba', softBorderValue);
     };
 
+
     const handlePageSelect = (page) => {
         setSelectedPage(page);
         window.scrollTo({top: 0})

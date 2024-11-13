@@ -32,6 +32,32 @@ function ScatterPlot({ data }) {
         // Clear previous elements
         svg.selectAll("*").remove();
 
+        // Density contour overlay
+        const densityData = d3.contourDensity()
+            .x(d => xScale(d.model))
+            .y(d => yScale(d.volume))
+            .size([width, height])
+            .bandwidth(20)  // larger area of coverage
+            .thresholds(30) // number of lines
+            (data);
+
+        svg.append("g")
+            .selectAll("path")
+            .data(densityData)
+            .enter().append("path")
+            .attr("d", d3.geoPath())
+            .attr("fill", "gray")
+            .attr("opacity", (d, i) => i === 0 ? 0.25 : 0.)
+
+        // Add an overlay to cover the contours below y_min
+        svg.append("rect")
+            .attr("x", 0)
+            .attr("y", yScale(y_min))  // Position the top of the overlay at y_min
+            .attr("width", width)
+            .attr("height", height - yScale(y_min))  // Height covers the area below y_min
+            .attr("fill", `rgb(${document.documentElement.style.getPropertyValue('--secondary-color')})`)  // Match this color to your background
+            .attr("z-index", 0);
+
         // Add the x-axis with fewer ticks
         svg.append("g")
             .attr("transform", `translate(0,${height - marginBottom})`)
@@ -43,24 +69,6 @@ function ScatterPlot({ data }) {
             .attr("transform", `translate(${xScale(0)},0)`)
             .call(d3.axisLeft(yScale).ticks(0))
             .attr("stroke-opacity", 0.1);
-
-        // Density contour overlay
-        const densityData = d3.contourDensity()
-            .x(d => xScale(d.model))
-            .y(d => yScale(d.volume))
-            .size([width, height])
-            .bandwidth(20)
-            .thresholds(60)
-            (data);
-
-        // Filter out contours where any part of the contour path has y < 0
-        svg.append("g")
-            .selectAll("path")
-            .data(densityData)
-            .enter().append("path")
-            .attr("d", d3.geoPath())
-            .attr("fill", "gray")
-            .attr("opacity", (d, i) => i === 0 ? 0.25 : 0.)
 
         // Tooltip for hover effect
         const tooltip = d3.select("body").append("div")
