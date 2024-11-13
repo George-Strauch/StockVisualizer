@@ -5,19 +5,15 @@ function ScatterPlot({ data }) {
     const svgRef = useRef();
 
     useEffect(() => {
-        const width = 1000;
+        const width = 1200;
         const height = 400;
         const marginTop = 20;
         const marginRight = 20;
         const marginBottom = 30;
         const marginLeft = 40;
 
-        // const x_min = d3.min(data, d => d.model);
-        // const x_max = d3.max(data, d => d.model);
-
         const x_min = -0.04;
         const x_max = 0.04;
-
         const y_min = -3000000;
         const y_max = d3.max(data, d => d.volume);
 
@@ -48,6 +44,23 @@ function ScatterPlot({ data }) {
             .call(d3.axisLeft(yScale).ticks(0))
             .attr("stroke-opacity", 0.1);
 
+        // Density contour overlay
+        const densityData = d3.contourDensity()
+            .x(d => xScale(d.model))
+            .y(d => yScale(d.volume))
+            .size([width, height])
+            .bandwidth(20)
+            .thresholds(60)
+            (data);
+
+        // Filter out contours where any part of the contour path has y < 0
+        svg.append("g")
+            .selectAll("path")
+            .data(densityData)
+            .enter().append("path")
+            .attr("d", d3.geoPath())
+            .attr("fill", "gray")
+            .attr("opacity", (d, i) => i === 0 ? 0.25 : 0.)
 
         // Tooltip for hover effect
         const tooltip = d3.select("body").append("div")
