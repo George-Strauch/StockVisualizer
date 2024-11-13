@@ -32,7 +32,7 @@ function App() {
     const side_bar_width_mobile_mult = 0.5
 
     const [isMobile, setIsMobile] = useState(getIsMobile());
-    const [darkMode, setDarkMode] = useState(false);
+    const [darkMode, setDarkMode] = useState(true);
 
     const [defaultSidebarWidth, setDefaultSidebarWidth] = useState('200px');
     const [sidebarWidth, setSidebarWidth] = useState('200px');
@@ -110,11 +110,8 @@ function App() {
     }, [lastScroll]);
 
 
-    // Toggle dark mode
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-        if (!darkMode) {
-            // Dark mode colors
+    const applyTheme = (isDarkMode) => {
+        if (isDarkMode) {
             document.documentElement.style.setProperty('--primary-color', '35, 35, 40');
             document.documentElement.style.setProperty('--secondary-color', '45, 45, 50');
             document.documentElement.style.setProperty('--soft-border', '80, 80, 90');
@@ -122,7 +119,6 @@ function App() {
             document.documentElement.style.setProperty('--soft-text', '200, 200, 200');
             document.documentElement.style.setProperty('--hard-text', '255, 255, 255');
         } else {
-            // Light mode colors remain unchanged
             document.documentElement.style.setProperty('--primary-color', '240, 240, 240');
             document.documentElement.style.setProperty('--secondary-color', '250, 250, 250');
             document.documentElement.style.setProperty('--soft-border', '160, 160, 160');
@@ -131,9 +127,19 @@ function App() {
             document.documentElement.style.setProperty('--hard-text', '15, 15, 15');
         }
 
-        // Dynamically update rgba values for elements using those variables
+        // Update RGBA dynamically
         const softBorderValue = `rgba(var(--soft-border), var(--soft-border-alpha))`;
         document.documentElement.style.setProperty('--soft-border-rgba', softBorderValue);
+    };
+
+    useEffect(() => {
+        // Apply theme based on the default dark mode value
+        applyTheme(darkMode);
+    }, []); // Run only once on mount
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+        applyTheme(!darkMode);
     };
 
 
