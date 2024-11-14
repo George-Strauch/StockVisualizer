@@ -17,7 +17,6 @@ function ScatterPlot({ data }) {
         const marginBottom = 30;
         const marginLeft = 40;
 
-
         const x_min = -0.04;
         const x_max = 0.04;
         const y_min = -3000000;
@@ -42,27 +41,37 @@ function ScatterPlot({ data }) {
             .range([height - marginBottom, marginTop]);
 
 
-        // Density contour overlay
-        const densityData = d3.contourDensity()
-            .x(d => xScale(d[x_axis_name]))
-            .y(d => yScale(d[y_axis_name]))
-            .size([width, height])
-            .bandwidth(20)  // larger area of coverage
-            .thresholds(30) // number of lines
-            (data);
+        // // Density contour overlay
+        // const densityData = d3.contourDensity()
+        //     .x(d => xScale(d[x_axis_name]))
+        //     .y(d => yScale(d[y_axis_name]))
+        //     .size([width, height])
+        //     .bandwidth(20)  // larger area of coverage
+        //     .thresholds(30) // number of lines
+        //     (data);
+
+
+                // Tooltip for hover effect
+        const tooltip = d3.select("body").append("div")
+            .style("position", "absolute")
+            .style("background", "lightgray")
+            .style("padding", "5px")
+            .style("border-radius", "5px")
+            .style("pointer-events", "none")
+            .style("opacity", 0);
 
 
 
         // Clear previous elements
         svg.selectAll("*").remove();
 
-        svg.append("g")
-            .selectAll("path")
-            .data(densityData)
-            .enter().append("path")
-            .attr("d", d3.geoPath())
-            .attr("fill", "gray")
-            .attr("opacity", (d, i) => i === 0 ? 0.25 : 0.)
+        // const contoursGroup = svg.append("g")
+        //     .selectAll("path")
+        //     .data(densityData)
+        //     .enter().append("path")
+        //     .attr("d", d3.geoPath())
+        //     .attr("fill", "gray")
+        //     .attr("opacity", (d, i) => i === 0 ? 0.25 : 0.)
 
         // Add an overlay to cover the contours below y_min
         svg.append("rect")
@@ -95,9 +104,29 @@ function ScatterPlot({ data }) {
                 // Update axes with new scales
                 xAxis.call(d3.axisBottom(newXScale).ticks(5));
                 yAxis.call(d3.axisLeft(newYScale).ticks(0));
-
-
                 yAxis.attr("transform", `translate(${newXScale(0)},0)`);
+
+
+                // const newDensityData = d3.contourDensity()
+                //     .x(d => newXScale(d[x_axis_name]))
+                //     .y(d => newYScale(d[y_axis_name]))
+                //     .size([width, height])
+                //     .bandwidth(20)
+                //     .thresholds(30)
+                //     (data);
+                // console.log(newDensityData)
+                //
+                //
+                // // Update contours with new density data
+                // contoursGroup.selectAll("path").remove(); // Remove old contours
+                // contoursGroup.selectAll("path")
+                //     .data(newDensityData)
+                //     .enter()
+                //     .append("density")
+                //     .attr("d", d3.geoPath()) // Use geoPath to draw contours
+                //     .attr("fill", "none")
+                //     .attr("stroke", "black");
+
 
                 // Update points with new scales
                 svg.selectAll("circle")
@@ -107,15 +136,35 @@ function ScatterPlot({ data }) {
 
         svg.call(zoom);
 
-        // Plot the points for the current group with hover labels
         svg.selectAll("circle")
-            .data(groupedData[groupIndex])
+            .data(data)
             .enter()
             .append("circle")
-            .attr("cx", d => xScale(d[x_axis_name]))
-            .attr("cy", d => yScale(d[y_axis_name]))
+            .attr("cx", d => xScale(d.model))
+            .attr("cy", d => yScale(d.volume))
             .attr("r", 4)
-            .style("fill", "steelblue");
+            .style("fill", "steelblue")
+            .on("mouseover", (event, d) => {
+                tooltip.transition().duration(200).style("opacity", 0.9);
+                tooltip.html(`${d["ticker"]} <br> Model: ${d[x_axis_name]}<br>Volume: ${d[y_axis_name]}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
+                // Remove tooltip when component unmounts
+        return () => tooltip.remove();
+
+        // // Plot the points for the current group with hover labels
+        // svg.selectAll("circle")
+        //     .data(groupedData[groupIndex])
+        //     .enter()
+        //     .append("circle")
+        //     .attr("cx", d => xScale(d[x_axis_name]))
+        //     .attr("cy", d => yScale(d[y_axis_name]))
+        //     .attr("r", 4)
+        //     .style("fill", "steelblue");
 
     }, [data, groupIndex, n]);
 
