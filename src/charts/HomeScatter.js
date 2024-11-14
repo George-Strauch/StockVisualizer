@@ -6,6 +6,9 @@ function ScatterPlot({ data }) {
     const svgRef = useRef();
     const [groupIndex, setGroupIndex] = useState(0);
 
+    const x_axis_name = "Model"
+    const y_axis_name = "Volume"
+
     useEffect(() => {
         const width = 1200;
         const height = 400;
@@ -26,11 +29,11 @@ function ScatterPlot({ data }) {
             .attr("height", height);
 
         const xScale = d3.scaleLinear()
-            .domain(d3.extent(data, d => d.model))
+            .domain(d3.extent(data, d => d[x_axis_name]))
             .range([marginLeft, width - marginRight]);
 
         const yScale = d3.scaleLinear()
-            .domain(d3.extent(data, d => d.volume))
+            .domain(d3.extent(data, d => d[y_axis_name]))
             .range([height - marginBottom, marginTop]);
 
         // Clear previous elements
@@ -59,10 +62,13 @@ function ScatterPlot({ data }) {
                 xAxis.call(d3.axisBottom(newXScale).ticks(5));
                 yAxis.call(d3.axisLeft(newYScale).ticks(0));
 
+
+                yAxis.attr("transform", `translate(${newXScale(0)},0)`);
+
                 // Update points with new scales
                 svg.selectAll("circle")
-                    .attr("cx", d => newXScale(d.model))
-                    .attr("cy", d => newYScale(d.volume));
+                    .attr("cx", d => newXScale(d[x_axis_name]))
+                    .attr("cy", d => newYScale(d[y_axis_name]));
             });
 
         svg.call(zoom);
@@ -72,8 +78,8 @@ function ScatterPlot({ data }) {
             .data(groupedData[groupIndex])
             .enter()
             .append("circle")
-            .attr("cx", d => xScale(d.model))
-            .attr("cy", d => yScale(d.volume))
+            .attr("cx", d => xScale(d[x_axis_name]))
+            .attr("cy", d => yScale(d[y_axis_name]))
             .attr("r", 4)
             .style("fill", "steelblue");
 

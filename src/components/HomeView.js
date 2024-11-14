@@ -5,8 +5,11 @@ import ScatterPlot from "../charts/HomeScatter"
 
 
 function getChart(data) {
-    // const points = Object.values(data).map(x => [x.Model, x.Volume])
-    const points = Object.values(data).map(d => ({ volume: d.Volume, model: d.Model, ticker: d.longName }));
+    for (let ticker in data) {
+        data[ticker]["ticker"] = ticker;
+    }
+    console.log(data)
+    const points = Object.values(data).map(d => (d));
     console.log(points)
     return <ScatterPlot data={points}/>
 }
