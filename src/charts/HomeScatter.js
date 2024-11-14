@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 
 function ScatterPlot({ data }) {
-    const n = 10
+    const n = 1
     const svgRef = useRef();
     const [groupIndex, setGroupIndex] = useState(0);
 
@@ -17,12 +17,17 @@ function ScatterPlot({ data }) {
         const marginBottom = 30;
         const marginLeft = 40;
 
+
+        const x_min = -0.04;
+        const x_max = 0.04;
+        const y_min = -3000000;
+        const y_max = d3.max(data, d => d[y_axis_name]);
+
         // Divide data into groups based on the given n value
         const groupSize = Math.ceil(data.length / n);
         const groupedData = Array.from({ length: n }, (_, i) =>
             data.slice(i * groupSize, (i + 1) * groupSize)
         );
-
 
         const svg = d3.select(svgRef.current)
             .attr("width", width)
@@ -36,8 +41,37 @@ function ScatterPlot({ data }) {
             .domain(d3.extent(data, d => d[y_axis_name]))
             .range([height - marginBottom, marginTop]);
 
+
+        // Density contour overlay
+        const densityData = d3.contourDensity()
+            .x(d => xScale(d[x_axis_name]))
+            .y(d => yScale(d[y_axis_name]))
+            .size([width, height])
+            .bandwidth(20)  // larger area of coverage
+            .thresholds(30) // number of lines
+            (data);
+
+
+
         // Clear previous elements
         svg.selectAll("*").remove();
+
+        svg.append("g")
+            .selectAll("path")
+            .data(densityData)
+            .enter().append("path")
+            .attr("d", d3.geoPath())
+            .attr("fill", "gray")
+            .attr("opacity", (d, i) => i === 0 ? 0.25 : 0.)
+
+        // Add an overlay to cover the contours below y_min
+        svg.append("rect")
+            .attr("x", 0)
+            .attr("y", yScale(y_min))  // Position the top of the overlay at y_min
+            .attr("width", width)
+            .attr("height", height - yScale(y_min))  // Height covers the area below y_min
+            .attr("fill", `rgb(${document.documentElement.style.getPropertyValue('--secondary-color')})`)  // Match this color to your background
+            .attr("z-index", 0);
 
         // Add axes
         const xAxis = svg.append("g")
@@ -94,7 +128,7 @@ function ScatterPlot({ data }) {
                 max={n - 1}
                 value={groupIndex}
                 onChange={(e) => setGroupIndex(+e.target.value)}
-                style={{ width: "100%" }}
+                style={{ width: "30%" }}
             />
         </div>
     );
