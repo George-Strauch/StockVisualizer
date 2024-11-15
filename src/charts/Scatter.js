@@ -17,11 +17,6 @@ function ScatterPlot({ data }) {
         const marginBottom = 30;
         const marginLeft = 40;
 
-        const x_min = -0.04;
-        const x_max = 0.04;
-        const y_min = -3000000;
-        const y_max = d3.max(data, d => d[y_axis_name]);
-
         // Divide data into groups based on the given n value
         const groupSize = Math.ceil(data.length / n);
         const groupedData = Array.from({ length: n }, (_, i) =>
@@ -31,10 +26,7 @@ function ScatterPlot({ data }) {
         const svg = d3.select(svgRef.current)
             .attr("width", width)
             .attr("height", height);
-        //
-        // const point = svg.append("g")
-        //     .attr("fill", "none")
-        //     .attr("stroke-linecap", "round");
+
 
         const xScale = d3.scaleLinear()
             .domain(d3.extent(data, d => d[x_axis_name]))
@@ -67,14 +59,17 @@ function ScatterPlot({ data }) {
             .call(d3.axisLeft(yScale).ticks(0))
             .attr("stroke-opacity", 0.1);
 
-        svg.selectAll("circle")
+        svg.selectAll("line")
             .data(groupedData[groupIndex])
             .enter()
-            .append("circle")
-            .attr("cx", d => xScale(d[x_axis_name]))
-            .attr("cy", d => yScale(d[y_axis_name]))
-            .attr("r", 4)
-            .style("fill", "steelblue")
+            .append("line")
+            .attr("x1", d => xScale(d[x_axis_name]))
+            .attr("y1", d => yScale(d[y_axis_name]))
+            .attr("x2", d => xScale(d[x_axis_name])) // Same x-coordinate for zero-length
+            .attr("y2", d => yScale(d[y_axis_name])) // Same y-coordinate for zero-length
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 5) // Define width instead of radius
+            .attr("stroke-linecap", "round")
             .on("mouseover", (event, d) => {
                 tooltip.transition().duration(200).style("opacity", 0.9);
                 tooltip.html(`${d["ticker"]} <br> Model: ${d[x_axis_name]}<br>Volume: ${d[y_axis_name]}`)
@@ -100,10 +95,11 @@ function ScatterPlot({ data }) {
                 yAxis.call(d3.axisLeft(newYScale).ticks(0));
                 yAxis.attr("transform", `translate(${newXScale(0)},0)`);
 
-                // Update points with new scales
-                svg.selectAll("circle")
-                    .attr("cx", d => newXScale(d[x_axis_name]))
-                    .attr("cy", d => newYScale(d[y_axis_name]));
+                svg.selectAll("line")
+                    .attr("x1", d => newXScale(d[x_axis_name]))
+                    .attr("y1", d => newYScale(d[y_axis_name]))
+                    .attr("x2", d => newXScale(d[x_axis_name])) // Maintain zero-length
+                    .attr("y2", d => newYScale(d[y_axis_name])); // Maintain zero-length
             });
 
         svg.call(zoom);
