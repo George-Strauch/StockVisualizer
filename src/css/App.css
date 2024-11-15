@@ -73,3 +73,7 @@
     margin-left: var(--sidebar-width);
     transition: margin-left var(--transition-time);
 }
+
+.chart-container {
+    outline: 1px solid var(--soft-border);
+}

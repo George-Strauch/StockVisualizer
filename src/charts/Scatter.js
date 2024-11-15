@@ -31,6 +31,10 @@ function ScatterPlot({ data }) {
         const svg = d3.select(svgRef.current)
             .attr("width", width)
             .attr("height", height);
+        //
+        // const point = svg.append("g")
+        //     .attr("fill", "none")
+        //     .attr("stroke-linecap", "round");
 
         const xScale = d3.scaleLinear()
             .domain(d3.extent(data, d => d[x_axis_name]))

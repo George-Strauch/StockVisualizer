@@ -117,14 +117,19 @@
 
 .links {
     list-style: none;
-    padding: 0;
+    padding: 0 0 0 0 ;
     margin: 0;
 }
 
 .links li {
-    padding: 20px 0;
+    padding: 25px 0;
     border-bottom: 1px solid rgba(var(--soft-border), var(--soft-border-alpha));
     cursor: pointer;
+}
+
+.sidebar-element {
+    padding: 0 0 0 1em ;
+
 }
 
 .links li:last-child {

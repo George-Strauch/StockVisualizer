@@ -1,14 +1,20 @@
 import './css/App.css';
 import { useEffect, useRef, useState } from 'react';
+import {
+    Route,
+    Routes,
+    useNavigate
+} from 'react-router-dom';
 import Home from "./components/HomeView";
-import { useNavigate } from 'react-router-dom';
+import Explore from "./components/Explore";
 import TickerPage from "./components/TickerView";
-import CalenderView from "./components/CalenderView";
+import CalendarView from "./components/CalendarView";
 import APIdocs from "./components/APIdocs";
 import TopNavigation from "./components/TopNavigation";
 import SideNavigation from "./components/SideNavigation";
 import Watchlist from "./components/WatchListView";
-import axios from "axios"
+import Screener from "./components/Screener";
+import About from "./components/About";
 
 function App() {
 
@@ -144,9 +150,24 @@ function App() {
 
 
     const handlePageSelect = (page) => {
-        setSelectedPage(page);
-        window.scrollTo({top: 0})
-        if (isMobile && sidebarOpen) setSidebarOpen(false)
+
+        // Map page names to routes
+        const routes = {
+            Home: '/home',
+            Explore: '/explore',
+            Screeners: '/screeners',
+            Watchlist: '/watchlist',
+            Calendar: '/calendar',
+            Tickers: '/tickers',
+            API: '/api',
+            About: "/about"
+        };
+
+        // Navigate to the correct route
+        navigate(routes[page]);
+
+        window.scrollTo({ top: 0 });
+        if (isMobile && sidebarOpen) setSidebarOpen(false);
     };
 
     const handleSearch = (event) => {
@@ -194,14 +215,20 @@ function App() {
                         className={`page-content ${view_type}`}
                         onClick={handleClickOutside}
                     >
-                        {selectedPage === 'Home' && <Home isMobile={isMobile}/>}
-                        {selectedPage === 'Watchlist' && <CalenderView isMobile={isMobile}/>}
-                        {selectedPage === 'Calender' && <Watchlist isMobile={isMobile}/>}
-                        {selectedPage === 'Tickers' && <TickerPage isMobile={isMobile}/>}
-                        {selectedPage === 'API' && <APIdocs isMobile={isMobile}/>}
+                        <Routes>
+                            <Route path="/home" element={<Home isMobile={isMobile} />} />
+                            <Route path="/explore" element={<Explore isMobile={isMobile} />} />
+                            <Route path="/screener" element={<Screener isMobile={isMobile} />} />
+                            <Route path="/watchlist" element={<Watchlist isMobile={isMobile} />} />
+                            <Route path="/calendar" element={<CalendarView isMobile={isMobile} />} />
+                            <Route path="/tickers" element={<TickerPage isMobile={isMobile} />} />
+                            <Route path="/api" element={<APIdocs isMobile={isMobile} />} />
+                            <Route path="/about" element={<About isMobile={isMobile} />} />
+                            {/* Optionally, set a default route */}
+                            <Route path="/" element={<Home isMobile={isMobile} />} />
+                        </Routes>
                     </div>
                 </div>
-
             </div>
         </div>
     );

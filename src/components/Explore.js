@@ -15,8 +15,8 @@ function getChart(data) {
 }
 
 
-function Home({isMobile}) {
-    const data_endpoint= "http://127.0.0.1:5003/api/data/";
+function Explore({isMobile}) {
+    const data_endpoint = "http://127.0.0.1:5003/api/data/";
 
     // use axios to get the data from the data endpoint and save it to an object
     const [data, setData] = useState({});
@@ -51,4 +51,4 @@ function Home({isMobile}) {
     );
 }
 
-export default Home;
+export default Explore;
